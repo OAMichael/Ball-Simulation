@@ -25,13 +25,38 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
 
 
     /*
+     *  UI parameters
+     */
+    private final int mUIWidth = 400;
+    private Label mLabelX;
+    private Label mLabelY;
+    private Label mLabelVX;
+    private Label mLabelVY;
+    private Label mLabelAlpha;
+    private Label mLabelDiameter;
+    private TextField mTextX;
+    private TextField mTextY;
+    private TextField mTextVX;
+    private TextField mTextVY;
+    private TextField mTextAlpha;
+    private TextField mTextDiameter;
+    private Checkbox mCheckboxShowArrows;
+    private Checkbox mCheckboxTimeStopped;
+    private Checkbox mCheckboxShowTail;
+    private Scrollbar mSimulationSpeedSlider;
+    private Scrollbar mRectangleWidthSlider;
+    private Scrollbar mRectangleHeightSlider;
+
+
+    /*
      *  Visual parameters
      */
-    private final int mSquareMargin = 24;
-    private final int mSquareLineWidth = 6;
-    private final int mSquareSize = mWindowHeight - 2 * mSquareMargin;
-    private final int mSquareXStart = mWindowWidth - 1 - mSquareSize - mSquareMargin;
-    private final int mSquareYStart = mSquareMargin;
+    private final int mRectangleMargin = 24;
+    private final int mRectangleLineWidth = 6;
+    private int mRectangleWidth = mWindowWidth - mUIWidth - 2 * mRectangleMargin;
+    private int mRectangleHeight = mWindowHeight - 2 * mRectangleMargin;
+    private int mRectangleXStart = mUIWidth + (mWindowWidth - mUIWidth - mRectangleWidth) / 2;
+    private int mRectangleYStart = (mWindowHeight - mRectangleHeight) / 2;
 
     private boolean mShowArrows = false;
     private boolean mTimeStopped = true;
@@ -46,7 +71,7 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
      */
     private final float mTimeTickValue = 0.001f;
     private int mTickCount = 0;
-    private final int mBallDiameter = 24;
+    private int mBallDiameter = 24;
     private float mAlpha = 0.2f;
     
     private float mBallPositionX = 0.6f;
@@ -58,24 +83,6 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
     private float mBallAccelerationX = 0.0f;
     private float mBallAccelerationY = 0.0f;
 
-
-    /*
-     *  UI parameters
-     */
-    private Label mLabelX;
-    private Label mLabelY;
-    private Label mLabelVX;
-    private Label mLabelVY;
-    private Label mLabelAlpha;
-    private TextField mTextX;
-    private TextField mTextY;
-    private TextField mTextVX;
-    private TextField mTextVY;
-    private TextField mTextAlpha;
-    private Checkbox mCheckboxShowArrows;
-    private Checkbox mCheckboxTimeStopped;
-    private Checkbox mCheckboxShowTail;
-    private Scrollbar mSimulationSpeedSlider;
 
 
     class Position {
@@ -174,8 +181,8 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
 
         updateAcceleration();
 
-        float rx = (float)mBallDiameter / (float)mSquareSize / 2.0f;
-        float ry = (float)mBallDiameter / (float)mSquareSize / 2.0f;
+        float rx = (float)mBallDiameter / (float)mRectangleWidth / 2.0f;
+        float ry = (float)mBallDiameter / (float)mRectangleHeight / 2.0f;
 
         if (mBallPositionX <= rx || mBallPositionX >= 1 - rx) {
             mBallVelocityX *= -1;
@@ -214,7 +221,7 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
 
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHints(mRenderHints);
-        g2.setStroke(new BasicStroke(mSquareLineWidth));
+        g2.setStroke(new BasicStroke(mRectangleLineWidth));
 
         if (mShowTail) {
             int diameter = 5;
@@ -224,8 +231,8 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
                     col = 128;
                 }
                 g.setColor(new Color(col, col, col));
-                g.fillOval( mSquareXStart + Math.round(pos.x * mSquareSize) - diameter / 2,
-                            mSquareYStart + Math.round(pos.y * mSquareSize) - diameter / 2,
+                g.fillOval( mRectangleXStart + Math.round(pos.x * mRectangleWidth) - diameter / 2,
+                            mRectangleYStart + Math.round(pos.y * mRectangleHeight) - diameter / 2,
                             diameter,
                             diameter );
 
@@ -234,30 +241,30 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
             g.setColor(Color.black);
         }
 
-        g.drawRect( mSquareXStart,
-                    mSquareYStart,
-                    mSquareSize,
-                    mSquareSize );
+        g.drawRect( mRectangleXStart,
+                    mRectangleYStart,
+                    mRectangleWidth,
+                    mRectangleHeight );
         
-        g.fillOval( mSquareXStart + Math.round(mBallPositionX * mSquareSize) - mBallDiameter / 2,
-                    mSquareYStart + Math.round(mBallPositionY * mSquareSize) - mBallDiameter / 2,
+        g.fillOval( mRectangleXStart + Math.round(mBallPositionX * mRectangleWidth) - mBallDiameter / 2,
+                    mRectangleYStart + Math.round(mBallPositionY * mRectangleHeight) - mBallDiameter / 2,
                     mBallDiameter,
                     mBallDiameter );
 
         if (mShowArrows) {        
             drawArrow(  g, 
-                        mSquareXStart + Math.round(mBallPositionX * mSquareSize),
-                        mSquareYStart + Math.round(mBallPositionY * mSquareSize),
-                        mSquareXStart + Math.round((mBallPositionX + mBallVelocityX) * mSquareSize),
-                        mSquareYStart + Math.round((mBallPositionY + mBallVelocityY) * mSquareSize),
+                        mRectangleXStart + Math.round(mBallPositionX * mRectangleWidth),
+                        mRectangleYStart + Math.round(mBallPositionY * mRectangleHeight),
+                        mRectangleXStart + Math.round((mBallPositionX + mBallVelocityX) * mRectangleWidth),
+                        mRectangleYStart + Math.round((mBallPositionY + mBallVelocityY) * mRectangleHeight),
                         Color.blue,
                         2);
         
             drawArrow(  g, 
-                        mSquareXStart + Math.round(mBallPositionX * mSquareSize),
-                        mSquareYStart + Math.round(mBallPositionY * mSquareSize),
-                        mSquareXStart + Math.round((mBallPositionX + mBallAccelerationX) * mSquareSize),
-                        mSquareYStart + Math.round((mBallPositionY + mBallAccelerationY) * mSquareSize),
+                        mRectangleXStart + Math.round(mBallPositionX * mRectangleWidth),
+                        mRectangleYStart + Math.round(mBallPositionY * mRectangleHeight),
+                        mRectangleXStart + Math.round((mBallPositionX + mBallAccelerationX) * mRectangleWidth),
+                        mRectangleYStart + Math.round((mBallPositionY + mBallAccelerationY) * mRectangleHeight),
                         Color.red,
                         2);
         }
@@ -281,8 +288,8 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
             public void actionPerformed(ActionEvent event) {
                 try {
                     float newPosX = Float.parseFloat(mTextX.getText());
-                    float ballR = (float)(mBallDiameter / (float)mSquareSize) / 2.0f;
-                    if (newPosX > ballR && newPosX < 1.0f - ballR) {
+                    float ballRX = (float)(mBallDiameter / (float)mRectangleWidth) / 2.0f;
+                    if (newPosX > ballRX && newPosX < 1.0f - ballRX) {
                         mBallPositionX = Float.parseFloat(mTextX.getText());
                     }
                     else {
@@ -311,8 +318,8 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
             public void actionPerformed(ActionEvent event) {
                 try {
                     float newPosY = Float.parseFloat(mTextY.getText());
-                    float ballR = (float)(mBallDiameter / (float)mSquareSize) / 2.0f;
-                    if (newPosY > ballR && newPosY < 1.0f - ballR) {
+                    float ballRY = (float)(mBallDiameter / (float)mRectangleHeight) / 2.0f;
+                    if (newPosY > ballRY && newPosY < 1.0f - ballRY) {
                         mBallPositionY = Float.parseFloat(mTextY.getText());
                     }
                     else {
@@ -396,6 +403,29 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
         });
 
 
+        mLabelDiameter = new Label("r:");
+        mLabelDiameter.setBounds(200, 290, 25, 25);
+        mLabelDiameter.setBackground(Color.lightGray);
+        mLabelDiameter.setFont(new Font("TimesRoman", Font.BOLD, 18));
+        add(mLabelDiameter);
+
+        mTextDiameter = new TextField(Integer.toString(mBallDiameter));
+        mTextDiameter.setBounds(240, 290, 80, 25);
+        mTextDiameter.setFont(new Font("TimesRoman", Font.BOLD, 16));
+        add(mTextDiameter);
+
+        mTextDiameter.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    mBallDiameter = Integer.parseInt(mTextDiameter.getText());
+                }
+                catch(NumberFormatException e) {
+                    mTextDiameter.setText(Integer.toString(mBallDiameter));
+                }
+            }
+        });
+
+
         mCheckboxShowArrows = new Checkbox(" Show velocity and acceleration", mShowArrows);
         mCheckboxShowArrows.setBounds(60, 340, 260, 25);
         mCheckboxShowArrows.setBackground(Color.lightGray);
@@ -441,7 +471,7 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
         mSimulationSpeedSlider = new Scrollbar(Scrollbar.HORIZONTAL, mSimulationSpeed, 1, 1, mMaxSimulationSpeed);
         mSimulationSpeedSlider.setBlockIncrement(1);
         mSimulationSpeedSlider.setUnitIncrement(1);
-        mSimulationSpeedSlider.setBounds(60, 490, mWindowWidth - mSquareSize - 2 * mSquareMargin - 2 * 60, 25);
+        mSimulationSpeedSlider.setBounds(60, 490, mUIWidth - 2 * 60, 25);
         mSimulationSpeedSlider.setBackground(new Color(32, 16, 96));
 		add(mSimulationSpeedSlider);
 
@@ -450,25 +480,55 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
                 mSimulationSpeed = mSimulationSpeedSlider.getValue();
             }
         });
+
+
+        mRectangleWidthSlider = new Scrollbar(Scrollbar.HORIZONTAL, mRectangleWidth, 1, 1, mWindowWidth - mUIWidth - 2 * mRectangleMargin);
+        mRectangleWidthSlider.setBlockIncrement(1);
+        mRectangleWidthSlider.setUnitIncrement(1);
+        mRectangleWidthSlider.setBounds(60, 600, mUIWidth - 2 * 60, 25);
+        mRectangleWidthSlider.setBackground(new Color(32, 16, 96));
+		add(mRectangleWidthSlider);
+
+		mRectangleWidthSlider.addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent event) {
+                mRectangleWidth = mRectangleWidthSlider.getValue();
+                mRectangleXStart = mUIWidth + (mWindowWidth - mUIWidth - mRectangleWidth) / 2;
+            }
+        });
+
+
+        mRectangleHeightSlider = new Scrollbar(Scrollbar.HORIZONTAL, mRectangleHeight, 1, 1, mWindowHeight - 2 * mRectangleMargin);
+        mRectangleHeightSlider.setBlockIncrement(1);
+        mRectangleHeightSlider.setUnitIncrement(1);
+        mRectangleHeightSlider.setBounds(60, 710, mUIWidth - 2 * 60, 25);
+        mRectangleHeightSlider.setBackground(new Color(32, 16, 96));
+		add(mRectangleHeightSlider);
+
+		mRectangleHeightSlider.addAdjustmentListener(new AdjustmentListener() {
+            public void adjustmentValueChanged(AdjustmentEvent event) {
+                mRectangleHeight = mRectangleHeightSlider.getValue();
+                mRectangleYStart = (mWindowHeight - mRectangleHeight) / 2;
+            }
+        });
     }
 
     public void drawUI(Graphics g) {
         g.setColor(Color.darkGray);
-        g.fillRect(0, 0, mWindowWidth - mSquareSize - 2 * mSquareMargin, mWindowHeight);
+        g.fillRect(0, 0, mUIWidth, mWindowHeight);
 
         g.setColor(Color.gray);
-        g.fillRoundRect(0, 0, mWindowWidth - mSquareSize - 2 * mSquareMargin, mWindowHeight, 50, 50);
+        g.fillRoundRect(0, 0, mUIWidth, mWindowHeight, 50, 50);
 
         /* Draw simulation name */
         {
             g.setColor(Color.lightGray);
-            g.fillRoundRect(40, 50, mWindowWidth - mSquareSize - 2 * mSquareMargin - 2 * 40, 35, 15, 15);
+            g.fillRoundRect(40, 50, mUIWidth - 2 * 40, 35, 15, 15);
 
             g.setColor(Color.darkGray);
             g.setFont(new Font("TimesRoman", Font.PLAIN, 24));
 
             FontMetrics fm = g.getFontMetrics();
-            int x = 40 + (mWindowWidth - mSquareSize - 2 * mSquareMargin - 2 * 40 - fm.stringWidth(mSimulationName)) / 2;
+            int x = 40 + (mUIWidth - 2 * 40 - fm.stringWidth(mSimulationName)) / 2;
             int y = 50 + (35 - fm.getHeight()) + fm.getAscent();
             g.drawString(mSimulationName, x, y);
         }
@@ -476,7 +536,7 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
         /* Draw simulation parameters header */
         {
             g.setColor(Color.lightGray);
-            g.fillRoundRect(40, 150, mWindowWidth - mSquareSize - 2 * mSquareMargin - 2 * 40, 270, 15, 15);
+            g.fillRoundRect(40, 150, mUIWidth - 2 * 40, 270, 15, 15);
 
             String header = "Simulation parameters";
             
@@ -484,7 +544,7 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
             g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
 
             FontMetrics fm = g.getFontMetrics();
-            int x = 40 + (mWindowWidth - mSquareSize - 2 * mSquareMargin - 2 * 40 - fm.stringWidth(header)) / 2;
+            int x = 40 + (mUIWidth - 2 * 40 - fm.stringWidth(header)) / 2;
             int y = 150 + (35 - fm.getHeight()) + fm.getAscent();
             g.drawString(header, x, y);
         }
@@ -492,7 +552,7 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
         /* Draw simulation speed slider */
         {
             g.setColor(Color.lightGray);
-            g.fillRoundRect(40, 440, mWindowWidth - mSquareSize - 2 * mSquareMargin - 2 * 40, 90, 15, 15);
+            g.fillRoundRect(40, 440, mUIWidth - 2 * 40, 90, 15, 15);
 
             String header = "Simulation speed";
             
@@ -500,8 +560,40 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
             g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
 
             FontMetrics fm = g.getFontMetrics();
-            int x = 40 + (mWindowWidth - mSquareSize - 2 * mSquareMargin - 2 * 40 - fm.stringWidth(header)) / 2;
+            int x = 40 + (mUIWidth - 2 * 40 - fm.stringWidth(header)) / 2;
             int y = 440 + (35 - fm.getHeight()) + fm.getAscent();
+            g.drawString(header, x, y);
+        }
+
+        /* Draw rectangle width slider */
+        {
+            g.setColor(Color.lightGray);
+            g.fillRoundRect(40, 550, mUIWidth - 2 * 40, 90, 15, 15);
+
+            String header = "Rectangle width";
+
+            g.setColor(Color.darkGray);
+            g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+
+            FontMetrics fm = g.getFontMetrics();
+            int x = 40 + (mUIWidth - 2 * 40 - fm.stringWidth(header)) / 2;
+            int y = 550 + (35 - fm.getHeight()) + fm.getAscent();
+            g.drawString(header, x, y);
+        }
+
+        /* Draw rectangle height slider */
+        {
+            g.setColor(Color.lightGray);
+            g.fillRoundRect(40, 660, mUIWidth - 2 * 40, 90, 15, 15);
+
+            String header = "Rectangle height";
+
+            g.setColor(Color.darkGray);
+            g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+
+            FontMetrics fm = g.getFontMetrics();
+            int x = 40 + (mUIWidth - 2 * 40 - fm.stringWidth(header)) / 2;
+            int y = 660 + (35 - fm.getHeight()) + fm.getAscent();
             g.drawString(header, x, y);
         }
 
@@ -530,11 +622,11 @@ public class BallSimulation extends Applet implements MouseListener, KeyListener
             int mouseX = e.getX();
             int mouseY = e.getY();
 
-            if (mouseX > mSquareXStart + mBallDiameter / 2 && mouseX < mWindowWidth - 1 - mSquareMargin - mBallDiameter / 2 &&
-                mouseY > mSquareYStart + mBallDiameter / 2 && mouseY < mWindowHeight - 1 - mSquareMargin - mBallDiameter / 2) {
+            if (mouseX > mRectangleXStart + mBallDiameter / 2 && mouseX < mRectangleXStart + mRectangleWidth - mBallDiameter / 2 &&
+                mouseY > mRectangleYStart + mBallDiameter / 2 && mouseY < mRectangleYStart + mRectangleHeight - mBallDiameter / 2) {
 
-                mBallPositionX = (float)(mouseX - mSquareXStart) / (float)mSquareSize;
-                mBallPositionY = (float)(mouseY - mSquareYStart) / (float)mSquareSize;
+                mBallPositionX = (float)(mouseX - mRectangleXStart) / (float)mRectangleWidth;
+                mBallPositionY = (float)(mouseY - mRectangleYStart) / (float)mRectangleHeight;
                 mTextX.setText(Float.toString(mBallPositionX));
                 mTextY.setText(Float.toString(mBallPositionY));
 
